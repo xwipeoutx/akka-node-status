@@ -3,7 +3,7 @@ using Akka.Actor;
 
 namespace akka_node_status
 {
-    public class MachineStatusCoordinatorActor : ReceiveActor
+    public class MachineStatusCoordinatorActor : TypedActor, IHandle<MachineStatusCoordinatorActor.HeartBeat>, IHandle<MachineStatusCoordinatorActor.Reset>
     {
         public class HeartBeat
         {
@@ -31,26 +31,24 @@ namespace akka_node_status
         public MachineStatusCoordinatorActor(IPinger pinger)
         {
             _pinger = pinger;
-            Receive<Reset>(m => HandleReset(m));
-            Receive<HeartBeat>(hb => HandleHeartBeat(hb));
         }
 
-        private void HandleReset(Reset reset)
+        public void Handle(Reset message)
         {
-            if (!_machineActors.ContainsKey(reset.MachineName))
+            if (!_machineActors.ContainsKey(message.MachineName))
             {
-                var machineProp = Props.Create(() => new MachineActor(_pinger, reset.MachineName));
-                _machineActors[reset.MachineName] = Context.ActorOf(machineProp);
+                var machineProp = Props.Create(() => new MachineActor(_pinger, message.MachineName));
+                _machineActors[message.MachineName] = Context.ActorOf(machineProp);
             }
-            _machineActors[reset.MachineName].Tell(new MachineActor.Reset());
+            _machineActors[message.MachineName].Tell(new MachineActor.Reset());
         }
 
-        private void HandleHeartBeat(HeartBeat hb)
+        public void Handle(HeartBeat message)
         {
-            if (!_machineActors.ContainsKey(hb.MachineName))
+            if (!_machineActors.ContainsKey(message.MachineName))
                 return;
 
-            _machineActors[hb.MachineName].Tell(new MachineActor.HeartBeat());
+            _machineActors[message.MachineName].Tell(new MachineActor.HeartBeat());
         }
     }
 }
