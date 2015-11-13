@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Akka.Actor;
 
 namespace akka_node_status
@@ -42,6 +41,8 @@ namespace akka_node_status
             {
                 var machineProp = Props.Create(() => new MachineActor(_pinger, machineFound.MachineName));
                 _machineActors[machineFound.MachineName] = Context.ActorOf(machineProp);
+
+                Context.System.ActorSelection(Addresses.ConsoleWriter.Path).Tell(new MachineStatus(machineFound.MachineName, null, null, null));
             }
         }
 

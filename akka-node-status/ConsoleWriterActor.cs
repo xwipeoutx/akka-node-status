@@ -31,17 +31,24 @@ namespace akka_node_status
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine(status.Key);
 
-                Console.ForegroundColor = status.Value.IsActive ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
-                Console.Write(status.Value.IsActive ? "Active" : "Gone");
+                if (status.Value.IsActive.HasValue)
+                {
+                    var isActive = status.Value.IsActive.Value;
 
-                Console.ResetColor();
-                if (status.Value.LastHeard != null)
-                    Console.Write(" {0}s ago", Math.Floor(Context.System.Scheduler.Now.Subtract(status.Value.LastHeard.Value).TotalSeconds));
+                    Console.ForegroundColor = isActive ? ConsoleColor.DarkGreen : ConsoleColor.DarkRed;
+                    Console.Write(isActive ? "Active" : "Gone");
 
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                if (!status.Value.IsActive)
-                    Console.Write(" Ping: {0}", status.Value.PingStatus.HasValue ? status.Value.PingStatus.Value.ToString() : "Waiting...");
+                    Console.ResetColor();
+                    if (status.Value.LastHeard != null)
+                        Console.Write(" {0}s ago",
+                            Math.Floor(Context.System.Scheduler.Now.Subtract(status.Value.LastHeard.Value).TotalSeconds));
 
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    if (!isActive)
+                        Console.Write(" Ping: {0}",
+                            status.Value.PingStatus.HasValue ? status.Value.PingStatus.Value.ToString() : "Waiting...");
+
+                }
                 Console.WriteLine();
             }
             Console.ResetColor();

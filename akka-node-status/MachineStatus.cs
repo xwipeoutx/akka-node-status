@@ -6,7 +6,7 @@ namespace akka_node_status
 {
     public class MachineStatus
     {
-        public MachineStatus(string machineName, bool isActive, DateTimeOffset? lastHeard, IPStatus? pingStatus)
+        public MachineStatus(string machineName, bool? isActive, DateTimeOffset? lastHeard, IPStatus? pingStatus)
         {
             IsActive = isActive;
             LastHeard = lastHeard;
@@ -15,7 +15,7 @@ namespace akka_node_status
         }
 
         public string MachineName { get; private set; }
-        public bool IsActive { get; private set; }
+        public bool? IsActive { get; private set; }
         public DateTimeOffset? LastHeard { get; private set; }
         public IPStatus? PingStatus { get; private set; }
     }

@@ -75,5 +75,6 @@ namespace akka_node_status
                 self.Tell(status.Result);
             });
         }
+
     }
 }
