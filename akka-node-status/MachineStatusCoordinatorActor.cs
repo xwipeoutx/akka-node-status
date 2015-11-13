@@ -15,9 +15,9 @@ namespace akka_node_status
             public string MachineName { get; private set; }
         }
 
-        public class MachineFound
+        public class Reset
         {
-            public MachineFound(string machineName)
+            public Reset(string machineName)
             {
                 MachineName = machineName;
             }
@@ -31,19 +31,18 @@ namespace akka_node_status
         public MachineStatusCoordinatorActor(IPinger pinger)
         {
             _pinger = pinger;
-            Receive<MachineFound>(m => HandleMachineFound(m));
+            Receive<Reset>(m => HandleReset(m));
             Receive<HeartBeat>(hb => HandleHeartBeat(hb));
         }
 
-        private void HandleMachineFound(MachineFound machineFound)
+        private void HandleReset(Reset reset)
         {
-            if (!_machineActors.ContainsKey(machineFound.MachineName))
+            if (!_machineActors.ContainsKey(reset.MachineName))
             {
-                var machineProp = Props.Create(() => new MachineActor(_pinger, machineFound.MachineName));
-                _machineActors[machineFound.MachineName] = Context.ActorOf(machineProp);
-
-                Context.System.ActorSelection(Addresses.ConsoleWriter.Path).Tell(new MachineStatus(machineFound.MachineName, null, null, null));
+                var machineProp = Props.Create(() => new MachineActor(_pinger, reset.MachineName));
+                _machineActors[reset.MachineName] = Context.ActorOf(machineProp);
             }
+            _machineActors[reset.MachineName].Tell(new MachineActor.Reset());
         }
 
         private void HandleHeartBeat(HeartBeat hb)

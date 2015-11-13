@@ -20,9 +20,9 @@ namespace akka_node_status
             while (true)
             {
                 if (random.Next(100) > 90)
-                    coordinator.Tell(new MachineStatusCoordinatorActor.MachineFound("Machine " + random.Next(1, 10)));
-                 else
-                     coordinator.Tell(new MachineStatusCoordinatorActor.HeartBeat("Machine " + random.Next(1, 10)));
+                    coordinator.Tell(new MachineStatusCoordinatorActor.Reset("Machine " + random.Next(1, 10)));
+                else
+                    coordinator.Tell(new MachineStatusCoordinatorActor.HeartBeat("Machine " + random.Next(1, 10)));
 
                 Thread.Sleep(200);
             }

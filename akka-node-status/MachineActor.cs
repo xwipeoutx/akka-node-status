@@ -6,6 +6,7 @@ namespace akka_node_status
 {
     public class MachineActor : ReceiveActor
     {
+        public class Reset { }
         public class HeartBeat { }
         private class Flatlined { }
         private class PingRequest { }
@@ -13,7 +14,7 @@ namespace akka_node_status
         private readonly IPinger _pinger;
         private readonly string _machineName;
         private ICancelable _cancelable;
-        private DateTimeOffset _lastHeard;
+        private DateTimeOffset? _lastHeard;
 
         public MachineActor(IPinger pinger, string machineName)
         {
@@ -24,8 +25,15 @@ namespace akka_node_status
 
         private void Alive()
         {
+            Receive<Reset>(hb => HandleReset());
             Receive<HeartBeat>(hb => HandleHeartBeat());
             Receive<Flatlined>(d => HandleFlatline());
+        }
+
+        private void HandleReset()
+        {
+            _lastHeard = null;
+            Context.System.ActorSelection(Addresses.ConsoleWriter.Path).Tell(new MachineStatus(_machineName, null, _lastHeard, null));
         }
 
         private void HandleHeartBeat()
@@ -54,6 +62,7 @@ namespace akka_node_status
                 Become(Alive);
             });
 
+            Receive<Reset>(hb => HandleReset());
             Receive<PingRequest>(r => DoPing());
             Receive<IPStatus>(r => HandlePingResponse(r));
         }
